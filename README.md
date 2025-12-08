@@ -1,10 +1,10 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Automated dependency updates (Renovate)
+## Automated dependency updates (Dependabot)
 
-- Install the free [Renovate GitHub App](https://github.com/apps/renovate) and grant access to this repository.
-- Merge the onboarding PR that Renovate creates to start receiving update PRs.
-- Renovate will run `bun install --frozen-lockfile` to refresh `bun.lock` for each update.
+- Dependabot is configured via `.github/dependabot.yml` (free on GitHub).
+- It opens weekly PRs for npm dependencies and GitHub Actions.
+- After merging a dependency PR, run `bun install` to refresh `bun.lock` because Dependabot does not update Bun lockfiles.
 
 ## Getting Started
 
