@@ -1,4 +1,4 @@
-import type { NextConfig } from "next"
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Embrace stricter/reactive runtime guarantees and new platform features.
@@ -15,6 +15,6 @@ const nextConfig: NextConfig = {
   turbopack: {
     debugIds: true,
   },
-}
+};
 
-export default nextConfig
+export default nextConfig;

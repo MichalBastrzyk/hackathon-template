@@ -14,12 +14,26 @@
     "indentStyle": "space",
     "indentWidth": 2
   },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double"
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
       "suspicious": {
         "noUnknownAtRules": "off"
+      },
+
+      "nursery": {
+        "useSortedClasses": "warn"
       }
     },
     "domains": {
@@ -30,7 +44,25 @@
   "assist": {
     "actions": {
       "source": {
-        "organizeImports": "on"
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [
+              [":BUN:", ":NODE:"],
+              ":BLANK_LINE:",
+              ["react", "react/**"],
+              ":BLANK_LINE:",
+              ["@tanstack/react-router", "@tanstack/react-router/**"],
+              ":BLANK_LINE:",
+              ":PACKAGE:",
+              ":BLANK_LINE:",
+              ["@/components/**", "@/integrations/**", "@/lib/**"],
+              "@/**",
+              ":BLANK_LINE:",
+              ":RELATIVE:"
+            ]
+          }
+        }
       }
     }
   }
