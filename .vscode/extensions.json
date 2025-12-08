@@ -1,0 +1,16 @@
+{
+  "unwantedRecommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode"
+  ],
+  "recommendations": [
+    "aaron-bond.better-comments",
+    "biomejs.biome",
+    "oven.bun-vscode",
+    "editorconfig.editorconfig",
+    "usernamehw.errorlens",
+    "github.copilot",
+    "yoavbls.pretty-ts-errors",
+    "bradlc.vscode-tailwindcss"
+  ]
+}
