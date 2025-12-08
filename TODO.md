@@ -17,9 +17,10 @@
 - Wymusić preinstalację narzędzi u zespołu (node wersja, pnpm/npm, editor extensions)
   - [ ] Narzędzia
     - [ ] Vscode
-    - [ ] Recommened Extensions
-    - [ ] .vscode/settings.json
+    - [x] Recommened Extensions
+    - [x] .vscode/settings.json
     - [ ] Copilot
+    - [ ] Copilot prompts and selected settings and models for the best results
     - [ ] Biome
 - Ustalić role i zakres MVP <4h: kto robi UI, kto backend, kto prezentację
 - Pierwszy deploy w 2h, potem tylko małe PR-y; blokować scope creep po deployu

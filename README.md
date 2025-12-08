@@ -1,5 +1,11 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Automated dependency updates (Renovate)
+
+- Install the free [Renovate GitHub App](https://github.com/apps/renovate) and grant access to this repository.
+- Merge the onboarding PR that Renovate creates to start receiving update PRs.
+- Renovate will run `bun install --frozen-lockfile` to refresh `bun.lock` for each update.
+
 ## Getting Started
 
 First, run the development server:
