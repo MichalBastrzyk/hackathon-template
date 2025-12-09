@@ -1,0 +1,12 @@
+{
+  "servers": {
+    "shadcn": {
+      "command": "bunx",
+      "args": ["shadcn@latest", "mcp"]
+    },
+    "ai-elements": {
+      "command": "bunx",
+      "args": ["-y", "mcp-remote", "https://registry.ai-sdk.dev/api/mcp"]
+    }
+  }
+}

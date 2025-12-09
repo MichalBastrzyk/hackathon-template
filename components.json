@@ -18,5 +18,33 @@
     "lib": "@/lib",
     "hooks": "@/hooks"
   },
-  "registries": {}
+  "registries": {
+    "@abui": "https://abui.io/r/{name}.json",
+    "@aliimam": "https://aliimam.in/r/{name}.json",
+    "@animate-ui": "https://animate-ui.com/r/{name}.json",
+    "@assistant-ui": "https://r.assistant-ui.com/{name}.json",
+    "@better-upload": "https://better-upload.com/r/{name}.json",
+    "@blocks": "https://blocks.so/r/{name}.json",
+    "@diceui": "https://diceui.com/r/{name}.json",
+    "@elevenlabs-ui": "https://ui.elevenlabs.io/r/{name}.json",
+    "@efferd": "https://efferd.com/r/{name}.json",
+    "@eldoraui": "https://eldoraui.site/r/{name}.json",
+    "@hextaui": "https://hextaui.com/r/{name}.json",
+    "@intentui": "https://intentui.com/r/{name}",
+    "@kibo-ui": "https://www.kibo-ui.com/r/{name}.json",
+    "@kokonutui": "https://kokonutui.com/r/{name}.json",
+    "@limeplay": "https://limeplay.winoffrg.dev/r/{name}.json",
+    "@lytenyte": "https://www.1771technologies.com/r/{name}.json",
+    "@magicui": "https://magicui.design/r/{name}",
+    "@plate": "https://platejs.org/r/{name}.json",
+    "@react-bits": "https://reactbits.dev/r/{name}.json",
+    "@reui": "https://reui.io/r/{name}.json",
+    "@scrollxui": "https://www.scrollxui.dev/registry/{name}.json",
+    "@systaliko-ui": "https://systaliko-ui.vercel.app/r/{name}.json",
+    "@shadcnblocks": "https://shadcnblocks.com/r/{name}.json",
+    "@shadcn-map": "http://shadcn-map.vercel.app/r/{name}.json",
+    "@shadcraft": "https://shadcraft-free.vercel.app/r/{name}.json",
+    "@tailark": "https://tailark.com/r/{name}.json",
+    "@tour": "https://onboarding-tour.vercel.app/r/{name}.json"
+  }
 }

@@ -6,6 +6,12 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 - It opens weekly PRs for npm dependencies and GitHub Actions.
 - After merging a dependency PR, run `bun install` to refresh `bun.lock` because Dependabot does not update Bun lockfiles.
 
+## Shadcn/UI Components with MCP integrated to copilot
+
+https://www.creative-tim.com
+https://www.cult-ui.com
+
+
 ## Getting Started
 
 First, run the development server:
