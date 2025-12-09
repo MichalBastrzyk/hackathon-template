@@ -1,5 +1,4 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
 ## Automated dependency updates (Dependabot)
 
 - Dependabot is configured via `.github/dependabot.yml` (free on GitHub).
@@ -46,3 +45,16 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+## Database - Drizzle ORM
+
+Here are the full docs for using Drizzle ORM: https://orm.drizzle.team/llms-full.txt
+
+## Auth - Better auth
+
+Here are the full docs for using Better Auth: https://www.better-auth.com/llms.txt
+
+## AI SDK - The way to integrate AI into your applications.
+
+Here are the full docs for using AI SDK: https://ai-sdk.dev/llms.txt

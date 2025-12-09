@@ -4,13 +4,13 @@
     - [ ] drizzle
     - [ ] better-auth
     - [ ] HOSTING na vercel
-    - [ ] biome.js
-    - [ ] Next.js
-    - [ ] TailwindCSS
-    - [ ] Shadcn/ui
     - [ ] .env.example
     - [ ] Either trpc or server actions
     - [ ] ai-sdk
+    - [x] biome.js
+    - [x] Next.js
+    - [x] TailwindCSS
+    - [x] Shadcn/ui
 - Zrobić dry-run przed hackathonem (git clone -> install -> dev -> deploy) i spisać kroki
   - [ ] Template
   - [ ] Deploy
