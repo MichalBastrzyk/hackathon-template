@@ -1,10 +1,11 @@
 import { Suspense } from "react";
 
-import { PostsSection } from "@/components/posts-section";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api, HydrateClient } from "@/trpc/server";
+
+import { PostsSection } from "./_components/posts-section";
 
 async function Data() {
   // Prefetch data for the client
