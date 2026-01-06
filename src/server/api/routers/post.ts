@@ -32,6 +32,6 @@ export const postRouter = createTRPCRouter({
       .from(postsTable)
       .orderBy(desc(postsTable.createdAt))
       .limit(1);
-    return post[0] ?? null;
+    return post?.[0] ?? null;
   }),
 });
