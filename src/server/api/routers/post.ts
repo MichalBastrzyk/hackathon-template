@@ -2,7 +2,11 @@ import { count, desc, lt } from "drizzle-orm";
 import { z } from "zod";
 
 import { postsTable } from "@/db/schema";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 
 const PAGE_SIZE = 10;
 
@@ -41,7 +45,7 @@ export const postRouter = createTRPCRouter({
     return result[0]?.count ?? 0;
   }),
 
-  create: publicProcedure
+  create: protectedProcedure
     .input(
       z.object({ title: z.string().min(1), content: z.string().optional() }),
     )
@@ -51,6 +55,7 @@ export const postRouter = createTRPCRouter({
         .values({
           title: input.title,
           content: input.content ?? null,
+          userId: ctx.session.user.id,
         })
         .returning();
       return post;

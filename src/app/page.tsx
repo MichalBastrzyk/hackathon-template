@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { UserNav } from "@/components/user-nav";
 import { api, HydrateClient } from "@/trpc/server";
 
 import { PostsSection } from "./_components/posts-section";
@@ -109,6 +110,12 @@ function DataSkeleton() {
 export default async function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 font-sans dark:bg-black">
+      <header className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-sm dark:bg-zinc-950/80">
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
+          <h2 className="font-semibold text-xl">Next.js Template</h2>
+          <UserNav />
+        </div>
+      </header>
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-12 px-6 py-16">
         {/* Hero Section */}
         <section className="flex flex-col gap-4 text-center">

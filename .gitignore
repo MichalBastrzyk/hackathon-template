@@ -35,6 +35,12 @@ yarn-error.log*
 
 # sqlite database files
 /sqlite/
+*.db
+*.db-shm
+*.db-wal
+
+# drizzle
+drizzle/
 
 # vercel
 .vercel
