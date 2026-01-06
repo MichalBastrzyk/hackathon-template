@@ -1,93 +1,29 @@
-# Next.js Hackathon Template
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-A production-ready Next.js template with authentication, tRPC, and Drizzle ORM.
+## Quick Setup
 
-## Features
+We provide automated setup scripts to get you started quickly:
 
-- ⚡️ **Next.js 16** with App Router and React 19
-- 🔐 **Authentication** with better-auth (email/password)
-- 🚀 **tRPC** for type-safe API routes
-- 🗄️ **Drizzle ORM** with SQLite/libSQL
-- 🎨 **Tailwind CSS v4** for styling
-- 🧩 **shadcn/ui** components
-- 📝 **TypeScript** strict mode
-- 🔍 **Biome** for linting and formatting
-
-## Quick Start
-
-1. **Clone the repository**
-   ```bash
-   git clone <your-repo-url>
-   cd hackathon-template
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   # or
-   bun install
-   ```
-
-3. **Set up environment variables**
-   
-   Copy `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Update the values:
-   ```env
-   DATABASE_URL=file:./local.db
-   DATABASE_AUTH_TOKEN=dummy-token-for-local
-   BETTER_AUTH_SECRET=your-secret-key-at-least-32-characters-long
-   BETTER_AUTH_URL=http://localhost:3000
-   ```
-
-4. **Initialize the database**
-   ```bash
-   npm run db:push
-   ```
-
-5. **Start the development server**
-   ```bash
-   npm run dev
-   ```
-
-6. Open [http://localhost:3000](http://localhost:3000) to see your app.
-
-## Authentication
-
-This template uses [better-auth](https://www.better-auth.com) for authentication with email/password.
-
-### Available Auth Routes
-
-- `/auth/signin` - Sign in to your account
-- `/auth/signup` - Create a new account
-- `/auth/forgot-password` - Password reset (placeholder)
-- `/auth/verify-email` - Email verification (placeholder)
-- `/profile` - Protected profile page (requires authentication)
-
-### Using Auth in Your Code
-
-#### Client-side (React components)
-
-```tsx
-"use client";
-
-import { useSession } from "@/lib/auth-client";
-
-export function MyComponent() {
-  const { data: session, isPending } = useSession();
-  
-  if (isPending) return <div>Loading...</div>;
-  
-  if (session?.user) {
-    return <div>Welcome, {session.user.name}!</div>;
-  }
-  
-  return <div>Please sign in</div>;
-}
+### Linux/macOS/WSL (Shell/Bash)
+```bash
+./setup.sh
 ```
+
+### Windows (PowerShell)
+```powershell
+.\setup.ps1
+```
+
+These scripts will:
+- ✅ Automatically install Node.js v24 (reading from `.nvmrc`)
+- ✅ Install `bun` package manager
+- ✅ Install all project dependencies
+- ✅ Configure PATH variables for the current session
+- ✅ Provide clear guidance for persistent PATH configuration
+
+**Note:** You may need to restart your terminal after the first run for PATH changes to take full effect.
+
+## Automated dependency updates (Dependabot)
 
 #### Server-side (Server Components, Route Handlers)
 
@@ -125,9 +61,36 @@ export const myRouter = createTRPCRouter({
 
 ## Database
 
-This template uses Drizzle ORM with SQLite. The database schema is defined in `src/db/schema.ts`.
+### Using the Setup Scripts (Recommended)
 
-### Common Commands
+The easiest way to get started is to use our automated setup scripts:
+
+**Linux/macOS/WSL:**
+```bash
+./setup.sh
+```
+
+**Windows PowerShell:**
+```powershell
+.\setup.ps1
+```
+
+After setup completes, start the development server:
+
+```bash
+bun run dev
+# or for faster performance with Turbopack:
+bunx next dev --turbopack
+```
+
+### Manual Setup
+
+If you prefer to set up manually or already have Node.js v24 and bun installed:
+
+```bash
+bun install
+bun run dev
+```
 
 - `npm run db:generate` - Generate migrations from schema changes
 - `npm run db:push` - Push schema changes to database
