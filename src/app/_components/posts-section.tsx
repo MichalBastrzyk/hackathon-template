@@ -81,7 +81,7 @@ export function PostsSection() {
         title: newPostData.title,
         content: newPostData.content ?? null,
         createdAt: new Date(),
-        userId: null, // Will be set by server
+        userId: null, // Temporary for optimistic UI, server will set actual userId
       };
 
       utils.post.list.setInfiniteData({}, (old) => {
