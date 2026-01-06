@@ -21,6 +21,26 @@ const nextConfig = {
   turbopack: {
     // debugIds: true,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "9000",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.r2.cloudflarestorage.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.your-objectstorage.com",
+        pathname: "/**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;
