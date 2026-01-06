@@ -1,42 +1,21 @@
 import { Suspense } from "react";
 
-import { count, desc } from "drizzle-orm";
-import { unstable_noStore } from "next/cache";
-
 import { PostsSection } from "@/components/posts-section";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { db } from "@/db/client";
-import { postsTable } from "@/db/schema";
-
-const PAGE_SIZE = 10;
-
-async function getInitialData() {
-  const [posts, countResult] = await Promise.all([
-    db
-      .select()
-      .from(postsTable)
-      .orderBy(desc(postsTable.createdAt))
-      .limit(PAGE_SIZE),
-    db.select({ count: count() }).from(postsTable),
-  ]);
-
-  const nextCursor =
-    posts.length === PAGE_SIZE ? posts[posts.length - 1].id : null;
-
-  return {
-    posts,
-    count: countResult[0].count,
-    nextCursor,
-  };
-}
+import { api, HydrateClient } from "@/trpc/server";
 
 async function Data() {
-  unstable_noStore();
-  const initialData = await getInitialData();
+  // Prefetch data for the client
+  void api.post.list.prefetchInfinite({});
+  void api.post.count.prefetch();
 
-  return <PostsSection initialData={initialData} />;
+  return (
+    <HydrateClient>
+      <PostsSection />
+    </HydrateClient>
+  );
 }
 
 function DataSkeleton() {
@@ -133,14 +112,14 @@ export default async function Home() {
         {/* Hero Section */}
         <section className="flex flex-col gap-4 text-center">
           <Badge variant="secondary" className="mx-auto w-fit">
-            Drizzle ORM Demo
+            tRPC + Drizzle ORM Demo
           </Badge>
           <h1 className="font-bold text-4xl text-zinc-900 tracking-tight dark:text-zinc-50">
-            Next.js + Drizzle ORM
+            Next.js + tRPC + Drizzle
           </h1>
           <p className="mx-auto max-w-md text-lg text-zinc-600 dark:text-zinc-400">
-            A simple demo showcasing SQLite with Drizzle ORM. Create posts and
-            see them appear in real-time using Server Components.
+            A demo showcasing tRPC with optimistic updates. Create posts and
+            watch them appear instantly using optimistic UI.
           </p>
         </section>
 
@@ -150,7 +129,7 @@ export default async function Home() {
 
         {/* Footer */}
         <footer className="mt-auto border-t pt-8 text-center text-sm text-zinc-500">
-          Built with Next.js, Drizzle ORM, and shadcn/ui
+          Built with Next.js, tRPC, Drizzle ORM, and shadcn/ui
         </footer>
       </main>
     </div>

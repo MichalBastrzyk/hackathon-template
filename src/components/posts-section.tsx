@@ -2,12 +2,6 @@
 
 import { useCallback, useEffect, useRef } from "react";
 
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,12 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Post } from "@/db/schema";
-
-interface PostsPage {
-  posts: Post[];
-  count: number;
-  nextCursor: number | null;
-}
+import { api } from "@/trpc/react";
 
 function formatDate(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
@@ -37,46 +26,20 @@ function formatDate(date: Date | string): string {
   }).format(d);
 }
 
-async function fetchPosts(cursor?: number): Promise<PostsPage> {
-  const url = cursor ? `/api/posts?cursor=${cursor}` : "/api/posts";
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("Failed to fetch posts");
-  return res.json() as Promise<PostsPage>;
-}
-
-async function createPost(data: {
-  title: string;
-  content?: string;
-}): Promise<Post> {
-  const res = await fetch("/api/posts", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error("Failed to create post");
-  return res.json() as Promise<Post>;
-}
-
-interface PostsSectionProps {
-  initialData: PostsPage;
-}
-
-export function PostsSection({ initialData }: PostsSectionProps) {
-  const queryClient = useQueryClient();
+export function PostsSection() {
   const formRef = useRef<HTMLFormElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const utils = api.useUtils();
+
+  const { data: count } = api.post.count.useQuery();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteQuery({
-      queryKey: ["posts"],
-      queryFn: ({ pageParam }) => fetchPosts(pageParam),
-      initialPageParam: undefined as number | undefined,
-      getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-      initialData: {
-        pages: [initialData],
-        pageParams: [undefined],
+    api.post.list.useInfiniteQuery(
+      {},
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
       },
-    });
+    );
 
   // Intersection Observer for infinite scroll
   const handleObserver = useCallback(
@@ -102,52 +65,56 @@ export function PostsSection({ initialData }: PostsSectionProps) {
     return () => observer.disconnect();
   }, [handleObserver]);
 
-  const mutation = useMutation({
-    mutationFn: createPost,
+  const createMutation = api.post.create.useMutation({
     onMutate: async (newPostData) => {
-      await queryClient.cancelQueries({ queryKey: ["posts"] });
+      // Cancel any outgoing refetches
+      await utils.post.list.cancel();
+      await utils.post.count.cancel();
 
-      const previousData = queryClient.getQueryData<{
-        pages: PostsPage[];
-        pageParams: (number | undefined)[];
-      }>(["posts"]);
+      // Snapshot the previous value
+      const previousList = utils.post.list.getInfiniteData({});
+      const previousCount = utils.post.count.getData();
 
-      if (previousData) {
-        const optimisticPost: Post = {
-          id: Date.now(),
-          title: newPostData.title,
-          content: newPostData.content ?? null,
-          createdAt: new Date(),
-        };
+      // Optimistically update to the new value
+      const optimisticPost: Post = {
+        id: Date.now(),
+        title: newPostData.title,
+        content: newPostData.content ?? null,
+        createdAt: new Date(),
+      };
 
-        queryClient.setQueryData<{
-          pages: PostsPage[];
-          pageParams: (number | undefined)[];
-        }>(["posts"], {
-          ...previousData,
-          pages: previousData.pages.map((page, index) =>
+      utils.post.list.setInfiniteData({}, (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page, index) =>
             index === 0
-              ? {
-                  ...page,
-                  posts: [optimisticPost, ...page.posts],
-                  count: page.count + 1,
-                }
+              ? { ...page, posts: [optimisticPost, ...page.posts] }
               : page,
           ),
-        });
-      }
+        };
+      });
 
+      utils.post.count.setData(undefined, (old) => (old ?? 0) + 1);
+
+      // Clear the form
       formRef.current?.reset();
 
-      return { previousData };
+      return { previousList, previousCount };
     },
     onError: (_err, _newPost, context) => {
-      if (context?.previousData) {
-        queryClient.setQueryData(["posts"], context.previousData);
+      // Rollback on error
+      if (context?.previousList) {
+        utils.post.list.setInfiniteData({}, context.previousList);
+      }
+      if (context?.previousCount !== undefined) {
+        utils.post.count.setData(undefined, context.previousCount);
       }
     },
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: ["posts"] });
+      // Invalidate after mutation settles
+      void utils.post.list.invalidate();
+      void utils.post.count.invalidate();
     },
   });
 
@@ -159,11 +126,14 @@ export function PostsSection({ initialData }: PostsSectionProps) {
 
     if (!title?.trim()) return;
 
-    mutation.mutate({ title: title.trim(), content: content?.trim() });
+    createMutation.mutate({
+      title: title.trim(),
+      content: content?.trim() || undefined,
+    });
   };
 
-  const allPosts = data.pages.flatMap((page) => page.posts);
-  const totalCount = data.pages[0].count;
+  const allPosts = data?.pages.flatMap((page) => page.posts) ?? [];
+  const totalCount = count ?? 0;
 
   return (
     <>
@@ -176,8 +146,8 @@ export function PostsSection({ initialData }: PostsSectionProps) {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Database</CardDescription>
-            <CardTitle className="text-lg">SQLite (libSQL)</CardTitle>
+            <CardDescription>API</CardDescription>
+            <CardTitle className="text-lg">tRPC</CardTitle>
           </CardHeader>
         </Card>
         <Card>
@@ -192,7 +162,7 @@ export function PostsSection({ initialData }: PostsSectionProps) {
         <CardHeader>
           <CardTitle>Create a Post</CardTitle>
           <CardDescription>
-            Add a new post to the database using Drizzle ORM
+            Add a new post using tRPC with optimistic updates
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -207,7 +177,7 @@ export function PostsSection({ initialData }: PostsSectionProps) {
                 placeholder="Post title..."
                 required
                 className="w-full"
-                disabled={mutation.isPending}
+                disabled={createMutation.isPending}
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -215,15 +185,15 @@ export function PostsSection({ initialData }: PostsSectionProps) {
                 name="content"
                 placeholder="Post content (optional)..."
                 className="w-full"
-                disabled={mutation.isPending}
+                disabled={createMutation.isPending}
               />
             </div>
             <Button
               type="submit"
               className="w-fit"
-              disabled={mutation.isPending}
+              disabled={createMutation.isPending}
             >
-              {mutation.isPending ? "Creating..." : "Create Post"}
+              {createMutation.isPending ? "Creating..." : "Create Post"}
             </Button>
           </form>
         </CardContent>
