@@ -40,7 +40,7 @@ yarn-error.log*
 *.db-wal
 
 # drizzle
-drizzle/
+.drizzle/
 
 # vercel
 .vercel
