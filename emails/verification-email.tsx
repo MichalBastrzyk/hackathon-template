@@ -14,8 +14,8 @@ import {
   Link,
   Preview,
   Section,
-  Text,
   Tailwind,
+  Text,
 } from "@react-email/components";
 
 export interface VerificationEmailProps {

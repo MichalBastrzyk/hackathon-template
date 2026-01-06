@@ -4,6 +4,8 @@
  * Run with: npm run demo:email or node --import tsx scripts/demo-email.ts
  */
 
+import "dotenv/config";
+
 import { VerificationEmail } from "../emails/verification-email";
 import { emailClient } from "../src/server/email";
 
@@ -23,16 +25,15 @@ async function main() {
   const isConnected = await emailClient.verifyConnection();
   if (!isConnected) {
     console.error("❌ Failed to connect to SMTP server");
-    console.error(
-      "Make sure MailHog is running: docker-compose up -d mailhog",
-    );
+    console.error("Make sure MailHog is running: docker-compose up -d mailhog");
     process.exit(1);
   }
   console.log("✅ SMTP connection verified\n");
 
   // Send test verification email
   console.log("Sending test verification email...");
-  const verificationUrl = "http://localhost:3000/auth/verify?token=demo-token-123";
+  const verificationUrl =
+    "http://localhost:3000/auth/verify?token=demo-token-123";
   const result = await emailClient.sendEmail({
     to: "test@example.com",
     subject: "Verify Your Email Address - Demo",

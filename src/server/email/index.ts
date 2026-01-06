@@ -4,5 +4,5 @@
  * Use these exports to send emails throughout the application
  */
 
-export { emailClient, EmailClient } from "./email-client";
-export type { SendEmailOptions, EmailSendResult } from "./types";
+export { EmailClient, emailClient } from "./email-client";
+export type { EmailSendResult, SendEmailOptions } from "./types";

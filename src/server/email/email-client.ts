@@ -1,8 +1,6 @@
-import "server-only";
-
 import { render } from "@react-email/components";
-import nodemailer from "nodemailer";
 import type { Transporter } from "nodemailer";
+import nodemailer from "nodemailer";
 
 import { env } from "@/env";
 
@@ -65,7 +63,10 @@ class EmailClient {
       }
       return true;
     } catch (error) {
-      console.error("[EmailClient] SMTP connection verification failed:", error);
+      console.error(
+        "[EmailClient] SMTP connection verification failed:",
+        error,
+      );
       return false;
     }
   }

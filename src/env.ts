@@ -14,10 +14,13 @@ export const env = createEnv({
     // Optional fields allow for flexible configuration across environments
     SMTP_HOST: z.string().default("localhost"),
     SMTP_PORT: z.coerce.number().default(1025),
-    SMTP_SECURE: z.coerce.boolean().default(false),
+    SMTP_SECURE: z
+      .string()
+      .default("false")
+      .transform((val) => val === "true" || val === "1"),
     SMTP_USER: z.string().optional(),
     SMTP_PASSWORD: z.string().optional(),
-    SMTP_FROM_EMAIL: z.string().email().default("noreply@localhost"),
+    SMTP_FROM_EMAIL: z.string().email().default("noreply@example.com"),
     SMTP_FROM_NAME: z.string().default("Hackathon Template"),
   },
   experimental__runtimeEnv: process.env,
