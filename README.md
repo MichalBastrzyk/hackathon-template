@@ -1,4 +1,28 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## Quick Setup
+
+We provide automated setup scripts to get you started quickly:
+
+### Linux/macOS/WSL (Shell/Bash)
+```bash
+./setup.sh
+```
+
+### Windows (PowerShell)
+```powershell
+.\setup.ps1
+```
+
+These scripts will:
+- ✅ Automatically install Node.js v24 (reading from `.nvmrc`)
+- ✅ Install `bun` package manager
+- ✅ Install all project dependencies
+- ✅ Configure PATH variables for the current session
+- ✅ Provide clear guidance for persistent PATH configuration
+
+**Note:** You may need to restart your terminal after the first run for PATH changes to take full effect.
+
 ## Automated dependency updates (Dependabot)
 
 - Dependabot is configured via `.github/dependabot.yml` (free on GitHub).
@@ -13,16 +37,35 @@ https://www.cult-ui.com
 
 ## Getting Started
 
-First, run the development server:
+### Using the Setup Scripts (Recommended)
+
+The easiest way to get started is to use our automated setup scripts:
+
+**Linux/macOS/WSL:**
+```bash
+./setup.sh
+```
+
+**Windows PowerShell:**
+```powershell
+.\setup.ps1
+```
+
+After setup completes, start the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun run dev
+# or for faster performance with Turbopack:
+bunx next dev --turbopack
+```
+
+### Manual Setup
+
+If you prefer to set up manually or already have Node.js v24 and bun installed:
+
+```bash
+bun install
+bun run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
