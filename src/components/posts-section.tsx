@@ -126,10 +126,9 @@ export function PostsSection() {
 
     if (!title?.trim()) return;
 
-    const trimmedContent = content?.trim();
     createMutation.mutate({
       title: title.trim(),
-      content: trimmedContent || undefined,
+      content: content?.trim() || undefined,
     });
   };
 
