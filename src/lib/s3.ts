@@ -61,8 +61,21 @@ export async function uploadToS3(
   contentType: string,
   dimensions: ImageDimensions | null = null,
 ): Promise<UploadResult> {
-  // Sanitize filename to prevent directory traversal
-  const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+  // Sanitize filename: only allow alphanumeric, hyphen, and single extension
+  // Split filename and extension
+  const lastDotIndex = fileName.lastIndexOf(".");
+  const name = lastDotIndex > 0 ? fileName.slice(0, lastDotIndex) : fileName;
+  const ext = lastDotIndex > 0 ? fileName.slice(lastDotIndex + 1) : "";
+
+  // Sanitize name part (only alphanumeric and hyphens)
+  const sanitizedName = name.replace(/[^a-zA-Z0-9-]/g, "_");
+  // Sanitize extension (only alphanumeric)
+  const sanitizedExt = ext.replace(/[^a-zA-Z0-9]/g, "");
+
+  // Construct final filename with timestamp prefix
+  const sanitizedFileName = sanitizedExt
+    ? `${sanitizedName}.${sanitizedExt}`
+    : sanitizedName;
   const key = `${Date.now()}-${sanitizedFileName}`;
 
   const metadata: Record<string, string> = {};

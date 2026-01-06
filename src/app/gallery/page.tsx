@@ -14,6 +14,18 @@ async function GalleryContent() {
     return ["jpg", "jpeg", "png", "gif", "webp"].includes(ext ?? "");
   });
 
+  // Fetch all dimensions in parallel with Promise.all
+  const dimensionsPromises = imageObjects.map((obj) =>
+    getImageDimensions(obj.key),
+  );
+  const dimensions = await Promise.all(dimensionsPromises);
+
+  // Combine objects with their dimensions
+  const imagesWithDimensions = imageObjects.map((obj, index) => ({
+    ...obj,
+    dimensions: dimensions[index],
+  }));
+
   return (
     <div className="space-y-8">
       {/* Upload Section */}
@@ -38,9 +50,8 @@ async function GalleryContent() {
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {imageObjects.map(async (obj) => {
-                // Fetch dimensions from S3 metadata
-                const dimensions = await getImageDimensions(obj.key);
+              {imagesWithDimensions.map((obj) => {
+                const { dimensions } = obj;
 
                 return (
                   <div

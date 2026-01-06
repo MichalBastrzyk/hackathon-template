@@ -21,7 +21,6 @@ interface UploadComponentProps {
 export function UploadComponent({ onUploadComplete }: UploadComponentProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
@@ -76,21 +75,12 @@ export function UploadComponent({ onUploadComplete }: UploadComponentProps) {
 
   const uploadSingleFile = async (file: File) => {
     setIsUploading(true);
-    setUploadProgress(0);
 
     try {
-      // Simulate progress
-      const progressInterval = setInterval(() => {
-        setUploadProgress((prev) => Math.min(prev + 10, 90));
-      }, 200);
-
       const formData = new FormData();
       formData.append("file", file);
 
       const result = await uploadFile(formData);
-
-      clearInterval(progressInterval);
-      setUploadProgress(100);
 
       if (result.success && result.data) {
         const uploadedFile: UploadedFile = {
@@ -103,20 +93,14 @@ export function UploadComponent({ onUploadComplete }: UploadComponentProps) {
         setUploadedFiles((prev) => [...prev, uploadedFile]);
         onUploadComplete?.(uploadedFile);
 
-        // Reset after a short delay
-        setTimeout(() => {
-          setIsUploading(false);
-          setUploadProgress(0);
-        }, 500);
+        setIsUploading(false);
       } else {
         setError(result.error ?? "Upload failed");
         setIsUploading(false);
-        setUploadProgress(0);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
       setIsUploading(false);
-      setUploadProgress(0);
     }
   };
 
@@ -181,15 +165,10 @@ export function UploadComponent({ onUploadComplete }: UploadComponentProps) {
 
             {isUploading && (
               <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-white/80 dark:bg-black/80">
-                <div className="w-2/3 space-y-2">
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                    <div
-                      className="h-full bg-blue-600 transition-all duration-300"
-                      style={{ width: `${uploadProgress}%` }}
-                    />
-                  </div>
+                <div className="flex flex-col items-center gap-3">
+                  <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
                   <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-                    Uploading... {uploadProgress}%
+                    Uploading...
                   </div>
                 </div>
               </div>
