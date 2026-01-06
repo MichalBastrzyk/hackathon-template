@@ -82,8 +82,7 @@ export async function uploadToS3(
   await s3Client.send(new PutObjectCommand(uploadParams));
 
   // Construct public URL
-  const publicUrl =
-    env.S3_PUBLIC_URL ?? env.S3_ENDPOINT;
+  const publicUrl = env.S3_PUBLIC_URL ?? env.S3_ENDPOINT;
   const url = `${publicUrl}/${env.S3_BUCKET_NAME}/${key}`;
 
   return {

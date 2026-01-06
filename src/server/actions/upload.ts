@@ -22,9 +22,7 @@ const ALLOWED_TYPES = [
   "image/webp",
 ];
 
-export async function uploadFile(
-  formData: FormData,
-): Promise<UploadResponse> {
+export async function uploadFile(formData: FormData): Promise<UploadResponse> {
   try {
     const file = formData.get("file") as File;
 
@@ -74,8 +72,7 @@ export async function uploadFile(
     console.error("Upload error:", error);
     return {
       success: false,
-      error:
-        error instanceof Error ? error.message : "Failed to upload file",
+      error: error instanceof Error ? error.message : "Failed to upload file",
     };
   }
 }

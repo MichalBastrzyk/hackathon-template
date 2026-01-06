@@ -59,24 +59,26 @@ async function GalleryContent() {
                       </div>
                     ) : (
                       <div className="relative aspect-video bg-gray-100 dark:bg-gray-800">
-                        <img
+                        <Image
                           src={obj.url}
                           alt={obj.key}
+                          fill
                           className="h-full w-full object-cover"
+                          unoptimized
                         />
                       </div>
                     )}
                     <div className="p-3">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <div className="font-medium text-gray-900 text-sm dark:text-gray-100">
                         {obj.key}
                       </div>
                       {dimensions && (
-                        <div className="mt-1 text-xs text-gray-500">
+                        <div className="mt-1 text-gray-500 text-xs">
                           {dimensions.width} × {dimensions.height}
                         </div>
                       )}
                       {obj.size && (
-                        <div className="mt-1 text-xs text-gray-500">
+                        <div className="mt-1 text-gray-500 text-xs">
                           {(obj.size / 1024).toFixed(1)} KB
                         </div>
                       )}
@@ -100,7 +102,7 @@ export default async function GalleryPage() {
           <h2 className="font-semibold text-xl">Image Gallery</h2>
           <Link
             href="/"
-            className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            className="text-blue-600 text-sm hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
           >
             ← Back to Home
           </Link>
