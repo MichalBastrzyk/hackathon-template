@@ -22,6 +22,8 @@ export const env = createEnv({
     SMTP_PASSWORD: z.string().optional(),
     SMTP_FROM_EMAIL: z.string().email().default("noreply@example.com"),
     SMTP_FROM_NAME: z.string().default("Hackathon Template"),
+    // MailHog web UI port for preview URLs (only used in development)
+    MAILHOG_WEB_PORT: z.coerce.number().default(8025),
   },
   experimental__runtimeEnv: process.env,
 });

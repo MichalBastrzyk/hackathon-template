@@ -126,7 +126,7 @@ class EmailClient {
       // Generate preview URL for MailHog
       const previewUrl =
         env.SMTP_HOST === "localhost" && env.SMTP_PORT === 1025
-          ? `http://localhost:8025`
+          ? `http://localhost:${env.MAILHOG_WEB_PORT}`
           : undefined;
 
       return {
