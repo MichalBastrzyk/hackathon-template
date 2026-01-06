@@ -49,4 +49,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# react-email
+.react-email/
+
 !.env.example
