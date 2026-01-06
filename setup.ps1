@@ -117,13 +117,23 @@ function Install-WithFnm {
             fnm use $NodeVersion
             
             # Update PATH for current session
-            $FnmNodeDir = & fnm env --shell powershell | Select-String "Path\s*=\s*`"(.+?)`"" | ForEach-Object { $_.Matches.Groups[1].Value }
-            if ($FnmNodeDir) {
-                Add-ToPath $FnmNodeDir
+            try {
+                $FnmEnvOutput = fnm env --shell powershell 2>$null
+                if ($FnmEnvOutput) {
+                    $FnmEnvOutput | Out-String | Invoke-Expression
+                    
+                    # Try to extract and add node directory to PATH
+                    $NodeDir = & fnm current 2>$null
+                    if ($NodeDir) {
+                        $NodeBinPath = Join-Path $env:FNM_DIR "node-versions" $NodeDir "installation" "bin"
+                        if (Test-Path $NodeBinPath) {
+                            Add-ToPath $NodeBinPath
+                        }
+                    }
+                }
+            } catch {
+                Write-Warning "Could not configure fnm environment automatically. You may need to restart your terminal."
             }
-            
-            # Refresh environment for fnm
-            fnm env --shell powershell | Out-String | Invoke-Expression
             
             Write-Success "Node.js installed successfully with fnm!"
             
@@ -211,7 +221,9 @@ function Install-WithChocolatey {
         Write-Info "Installing Node.js with Chocolatey..."
         Write-Warning "You may be prompted for administrator privileges..."
         
-        choco install nodejs --version=24 -y
+        # Use exact version number without 'v' prefix
+        $VersionNumber = $NodeVersion -replace '^v', ''
+        choco install nodejs --version=$VersionNumber -y
         
         # Refresh environment variables
         $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
@@ -279,7 +291,8 @@ if (-not (Get-Command bun -ErrorAction SilentlyContinue)) {
     Write-Info "Installing bun..."
     
     try {
-        # Install bun using PowerShell script
+        # Note: Using official bun installation script from https://bun.sh/
+        # This is the recommended installation method per bun documentation
         powershell -c "irm bun.sh/install.ps1 | iex"
         
         # Add bun to PATH for current session
