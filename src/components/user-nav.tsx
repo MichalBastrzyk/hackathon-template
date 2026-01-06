@@ -1,10 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { useSession, authClient } from "@/lib/auth-client";
+import { authClient, useSession } from "@/lib/auth-client";
 
 export function UserNav() {
   const router = useRouter();
@@ -25,9 +25,12 @@ export function UserNav() {
   if (session?.user) {
     return (
       <div className="flex items-center gap-4">
-        <span className="text-sm text-zinc-600 dark:text-zinc-400">
+        <Link
+          href="/profile"
+          className="text-sm text-zinc-600 dark:text-zinc-400 hover:underline"
+        >
           {session.user.name || session.user.email}
-        </span>
+        </Link>
         <Button onClick={handleSignOut} variant="outline" size="sm">
           Sign Out
         </Button>

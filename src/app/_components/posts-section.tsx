@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSession } from "@/lib/auth-client";
 import type { Post } from "@/db/schema";
 import { api } from "@/trpc/react";
 
@@ -27,6 +28,7 @@ function formatDate(date: Date | string): string {
 }
 
 export function PostsSection() {
+  const { data: auth } = useSession();
   const formRef = useRef<HTMLFormElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const utils = api.useUtils();
@@ -178,7 +180,7 @@ export function PostsSection() {
                 placeholder="Post title..."
                 required
                 className="w-full"
-                disabled={createMutation.isPending}
+                disabled={createMutation.isPending || !auth?.user}
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -186,13 +188,13 @@ export function PostsSection() {
                 name="content"
                 placeholder="Post content (optional)..."
                 className="w-full"
-                disabled={createMutation.isPending}
+                disabled={createMutation.isPending || !auth?.user}
               />
             </div>
             <Button
               type="submit"
               className="w-fit"
-              disabled={createMutation.isPending}
+              disabled={createMutation.isPending || !auth?.user}
             >
               {createMutation.isPending ? "Creating..." : "Create Post"}
             </Button>
@@ -221,7 +223,9 @@ export function PostsSection() {
                 <CardHeader>
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex flex-col gap-1">
-                      <CardTitle className="text-lg">{post.title}</CardTitle>
+                      <CardTitle className="text-lg">
+                        {post.title} - {post.userId}
+                      </CardTitle>
                       {post.content && (
                         <CardDescription>{post.content}</CardDescription>
                       )}
