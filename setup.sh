@@ -274,6 +274,44 @@ else
     exit 1
 fi
 
+# Setup environment variables
+echo ""
+info "Setting up environment variables..."
+echo ""
+
+if [ -f ".env" ]; then
+    warn "A .env file already exists."
+    read -p "Do you want to overwrite it? (y/N): " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        info "Skipping environment setup."
+    else
+        rm .env
+    fi
+fi
+
+if [ ! -f ".env" ]; then
+    info "Please provide the following environment variables:"
+    echo ""
+    
+    # DATABASE_URL
+    echo "Database URL (e.g., libsql://your-database.turso.io)"
+    read -p "DATABASE_URL: " DATABASE_URL
+    
+    # DATABASE_AUTH_TOKEN
+    echo ""
+    echo "Database authentication token"
+    read -p "DATABASE_AUTH_TOKEN: " DATABASE_AUTH_TOKEN
+    
+    # Create .env file
+    cat > .env << EOF
+DATABASE_URL=$DATABASE_URL
+DATABASE_AUTH_TOKEN=$DATABASE_AUTH_TOKEN
+EOF
+    
+    success ".env file created successfully!"
+fi
+
 # Print success message
 echo ""
 echo "=========================================="
@@ -283,10 +321,6 @@ echo ""
 info "To start the development server, run:"
 echo ""
 success "  bun run dev"
-echo ""
-echo "  OR with Turbopack (faster):"
-echo ""
-success "  bunx next dev --turbopack"
 echo ""
 info "Then open http://localhost:3000 in your browser."
 echo ""

@@ -346,6 +346,45 @@ if (Get-Command bun -ErrorAction SilentlyContinue) {
     exit 1
 }
 
+# Setup environment variables
+Write-Host ""
+Write-Info "Setting up environment variables..."
+Write-Host ""
+
+if (Test-Path ".env") {
+    Write-Warning "A .env file already exists."
+    $overwrite = Read-Host "Do you want to overwrite it? (y/N)"
+    if ($overwrite -notmatch '^[Yy]') {
+        Write-Info "Skipping environment setup."
+    } else {
+        Remove-Item ".env" -Force
+    }
+}
+
+if (-not (Test-Path ".env")) {
+    Write-Info "Please provide the following environment variables:"
+    Write-Host ""
+    
+    # DATABASE_URL
+    Write-Host "Database URL (e.g., libsql://your-database.turso.io)" -ForegroundColor Cyan
+    $DATABASE_URL = Read-Host "DATABASE_URL"
+    
+    # DATABASE_AUTH_TOKEN
+    Write-Host ""
+    Write-Host "Database authentication token" -ForegroundColor Cyan
+    $DATABASE_AUTH_TOKEN = Read-Host "DATABASE_AUTH_TOKEN"
+    
+    # Create .env file
+    $envContent = @"
+DATABASE_URL=$DATABASE_URL
+DATABASE_AUTH_TOKEN=$DATABASE_AUTH_TOKEN
+"@
+    
+    Set-Content -Path ".env" -Value $envContent
+    
+    Write-Success ".env file created successfully!"
+}
+
 # Print success message
 Write-Host ""
 Write-Host "=========================================="
