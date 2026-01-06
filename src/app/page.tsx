@@ -8,8 +8,8 @@ import { api, HydrateClient } from "@/trpc/server";
 
 async function Data() {
   // Prefetch data for the client
-  void api.post.list.prefetchInfinite({});
-  void api.post.count.prefetch();
+  await api.post.list.prefetchInfinite({});
+  await api.post.count.prefetch();
 
   return (
     <HydrateClient>
