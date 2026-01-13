@@ -21,9 +21,15 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+  },
+
+  emailVerification: {
+    // Automatically sends verification email on signup
+    autoSignInAfterVerification: true,
     // Custom email verification sender
     sendVerificationEmail: async ({ user, url, token }) => {
-      // Send verification email using our email service
+      // Build verification URL that points to our verify-email page
+      // The URL from better-auth already contains the token
       const result = await emailClient.sendEmail({
         to: user.email,
         subject: "Verify Your Email Address",
@@ -42,13 +48,9 @@ export const auth = betterAuth({
         );
         throw new Error("Failed to send verification email");
       }
-
-      if (env.NODE_ENV === "development" && result.previewUrl) {
-        console.log(
-          `[Auth] Verification email sent. Preview: ${result.previewUrl}`,
-        );
-      }
     },
+    // Callback URL after email verification (success or failure)
+    sendOnSignUp: true,
   },
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL,

@@ -123,16 +123,9 @@ class EmailClient {
         });
       }
 
-      // Generate preview URL for MailHog
-      const previewUrl =
-        env.SMTP_HOST === "localhost" && env.SMTP_PORT === 1025
-          ? `http://localhost:${env.MAILHOG_WEB_PORT}`
-          : undefined;
-
       return {
         success: true,
         messageId: info.messageId,
-        previewUrl,
       };
     } catch (error) {
       console.error("[EmailClient] Failed to send email:", error);
@@ -160,8 +153,16 @@ class EmailClient {
   }
 }
 
+const globalForEmail = globalThis as unknown as {
+  emailClient?: EmailClient;
+};
+
+if (!globalForEmail.emailClient) {
+  globalForEmail.emailClient = new EmailClient();
+}
+
 // Export singleton instance
-export const emailClient = new EmailClient();
+export const emailClient = globalForEmail.emailClient;
 
 // Export class for testing or custom instances
 export { EmailClient };

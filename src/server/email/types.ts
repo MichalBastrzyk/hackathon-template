@@ -28,6 +28,4 @@ export interface EmailSendResult {
   messageId?: string;
   /** Error message if sending failed */
   error?: string;
-  /** Preview URL for email (e.g., from Ethereal or MailHog) */
-  previewUrl?: string;
 }

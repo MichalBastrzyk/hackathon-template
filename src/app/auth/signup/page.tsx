@@ -43,13 +43,19 @@ export default function SignUpPage() {
     setLoading(true);
 
     try {
-      await authClient.signUp.email({
+      const result = await authClient.signUp.email({
         email,
         password,
         name,
       });
-      router.push("/");
-      router.refresh();
+
+      if (result.error) {
+        setError(result.error.message || "Failed to sign up");
+        return;
+      }
+
+      // Redirect to verify-email page with email for resend functionality
+      router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to sign up");
     } finally {
