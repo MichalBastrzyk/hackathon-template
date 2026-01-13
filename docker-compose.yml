@@ -1,64 +1,26 @@
-# Docker Compose v3.9+ schema
-# This configuration provides a mock SMTP server for local email testing
-version: "3.9"
-
 services:
-  # MailHog: Mock SMTP server with web UI for email testing
-  # Captures all outgoing emails without actually sending them
   mailhog:
-    # Official MailHog Docker image from Docker Hub
     image: mailhog/mailhog:latest
-    
-    # Container name for easier reference in commands
     container_name: hackathon-mailhog
-    
-    # Restart policy: always restart the container if it stops
-    # Useful for development to ensure the service stays available
     restart: unless-stopped
-    
-    # Port mappings: host:container
     ports:
-      # SMTP port: Application sends emails to this port
-      # Applications connect to localhost:1025 to send emails
       - "1025:1025"
-      
-      # Web UI port: View captured emails in browser
-      # Access the web interface at http://localhost:8025
       - "8025:8025"
-    
-    # Environment variables for MailHog configuration
     environment:
-      # Maximum number of messages to store in memory
-      # After this limit, oldest messages are deleted
       MH_STORAGE: memory
-      
-      # SMTP bind address - binds to all network interfaces
       MH_SMTP_BIND_ADDR: 0.0.0.0:1025
-      
-      # Web UI bind address - binds to all network interfaces  
       MH_UI_BIND_ADDR: 0.0.0.0:8025
-      
-      # API bind address for programmatic access
       MH_API_BIND_ADDR: 0.0.0.0:8025
-    
-    # Network configuration
     networks:
       - hackathon-network
-    
-    # Health check to ensure service is running properly
     healthcheck:
-      # Check if the web UI is responding
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8025"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
 
-# Define custom network for service isolation
 networks:
   hackathon-network:
-    # Bridge driver for container-to-container communication
     driver: bridge
-    
-    # Network name for easy identification
     name: hackathon-network
