@@ -17,6 +17,20 @@ export const env = createEnv({
     S3_SECRET_ACCESS_KEY: z.string().min(1),
     S3_BUCKET_NAME: z.string().min(1),
     S3_PUBLIC_URL: z.string().url().optional(),
+    // SMTP Configuration for email sending
+    // Optional fields allow for flexible configuration across environments
+    SMTP_HOST: z.string().default("localhost"),
+    SMTP_PORT: z.coerce.number().default(1025),
+    SMTP_SECURE: z
+      .string()
+      .default("false")
+      .transform((val) => val === "true" || val === "1"),
+    SMTP_USER: z.string().optional(),
+    SMTP_PASSWORD: z.string().optional(),
+    SMTP_FROM_EMAIL: z.string().email().default("noreply@example.com"),
+    SMTP_FROM_NAME: z.string().default("Hackathon Template"),
+    // MailHog web UI port for preview URLs (only used in development)
+    MAILHOG_WEB_PORT: z.coerce.number().default(8025),
   },
   experimental__runtimeEnv: process.env,
 });
