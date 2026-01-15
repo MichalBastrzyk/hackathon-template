@@ -1,8 +1,14 @@
 "use client";
 
-import { useState, useRef, type DragEvent, type ChangeEvent } from "react";
+import {
+  type ChangeEvent,
+  type DragEvent,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
-import { uploadFile } from "@/server/actions/upload";
+import { useDirectUpload } from "@/hooks/use-direct-upload";
 
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -20,23 +26,50 @@ interface UploadComponentProps {
 
 export function UploadComponent({ onUploadComplete }: UploadComponentProps) {
   const [isDragging, setIsDragging] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+  const { uploads, uploadFiles } = useDirectUpload({
+    onUploadComplete: (file) => {
+      const uploadedFile: UploadedFile = {
+        url: file.url,
+        key: file.key,
+        width: file.width,
+        height: file.height,
+      };
+
+      setUploadedFiles((prev) => [...prev, uploadedFile]);
+      onUploadComplete?.(uploadedFile);
+    },
+    onUploadError: (file) => {
+      setUploadedFiles((prev) =>
+        prev.filter((uploaded) => uploaded.key !== file.key),
+      );
+    },
+  });
+
+  const isUploading = useMemo(
+    () => uploads.some((upload) => upload.status === "uploading"),
+    [uploads],
+  );
+
+  const error = useMemo(() => {
+    const failed = uploads.find((upload) => upload.status === "error");
+    return failed?.error ?? null;
+  }, [uploads]);
+
+  const handleDragOver = (e: DragEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsDragging(true);
   };
 
-  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+  const handleDragLeave = (e: DragEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsDragging(false);
   };
 
-  const handleDrop = async (e: DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (e: DragEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsDragging(false);
 
@@ -54,8 +87,6 @@ export function UploadComponent({ onUploadComplete }: UploadComponentProps) {
   };
 
   const handleFiles = async (files: File[]) => {
-    setError(null);
-
     for (const file of files) {
       // Show preview for images
       if (file.type.startsWith("image/")) {
@@ -65,54 +96,24 @@ export function UploadComponent({ onUploadComplete }: UploadComponentProps) {
         };
         reader.readAsDataURL(file);
       }
-
-      await uploadSingleFile(file);
     }
+
+    await uploadFiles(files);
 
     // Clear preview after upload
     setPreview(null);
-  };
-
-  const uploadSingleFile = async (file: File) => {
-    setIsUploading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const result = await uploadFile(formData);
-
-      if (result.success && result.data) {
-        const uploadedFile: UploadedFile = {
-          url: result.data.url,
-          key: result.data.key,
-          width: result.data.width,
-          height: result.data.height,
-        };
-
-        setUploadedFiles((prev) => [...prev, uploadedFile]);
-        onUploadComplete?.(uploadedFile);
-
-        setIsUploading(false);
-      } else {
-        setError(result.error ?? "Upload failed");
-        setIsUploading(false);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed");
-      setIsUploading(false);
-    }
   };
 
   return (
     <div className="w-full space-y-4">
       <Card>
         <CardContent className="p-6">
-          <div
+          <button
+            type="button"
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            className={`relative flex min-h-[200px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors ${
+            className={`relative flex min-h-50 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors ${
               isDragging
                 ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
                 : "border-gray-300 hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-600"
@@ -133,7 +134,7 @@ export function UploadComponent({ onUploadComplete }: UploadComponentProps) {
                 <img
                   src={preview}
                   alt="Preview"
-                  className="max-h-[180px] rounded-lg object-contain"
+                  className="max-h-45 rounded-lg object-contain"
                 />
               </div>
             ) : (
@@ -143,7 +144,9 @@ export function UploadComponent({ onUploadComplete }: UploadComponentProps) {
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
+                  <title>Upload icon</title>
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -173,7 +176,7 @@ export function UploadComponent({ onUploadComplete }: UploadComponentProps) {
                 </div>
               </div>
             )}
-          </div>
+          </button>
 
           {error && (
             <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-950/20 dark:text-red-400">

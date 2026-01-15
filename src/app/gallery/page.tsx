@@ -8,7 +8,6 @@ import { listObjects, parseDimensionsFromKey } from "@/lib/s3";
 async function GalleryContent() {
   const objects = await listObjects();
 
-  // Filter for images only
   const imageObjects = objects.filter((obj) => {
     const ext = obj.key.split(".").pop()?.toLowerCase();
     return ["jpg", "jpeg", "png", "gif", "webp"].includes(ext ?? "");

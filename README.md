@@ -342,14 +342,14 @@ export const exampleRouter = createTRPCRouter({
 
 ## S3-Compatible Storage & Image Upload
 
-This project includes a robust file upload system with S3-compatible storage integration. Images are uploaded with their dimensions stored directly as S3 object metadata (no database required).
+This project includes a robust file upload system with S3-compatible storage integration. Images are uploaded with dimension-aware object keys (no database required).
 
 ### Features
 
 - **Drag-and-drop upload** with multi-file support
 - **Real-time upload progress** indicator
-- **Image dimension extraction** using Sharp
-- **Automatic metadata storage** on S3 objects (`x-amz-meta-width`, `x-amz-meta-height`)
+- **Client-side dimension extraction** for fast feedback
+- **Dimension-aware object keys** (`<id>_<width>x<height>.ext`)
 - **Gallery display** using Next.js `next/image` for optimal performance
 - **Multiple provider support**: MinIO (local), Cloudflare R2, Hetzner S3
 
@@ -418,7 +418,7 @@ S3_PUBLIC_URL=https://<region>.your-objectstorage.com
 
 1. Navigate to `/gallery` in your browser
 2. Upload images using drag-and-drop or file picker
-3. Images appear in the gallery with dimensions fetched from S3 metadata
+3. Images appear in the gallery with dimensions parsed from object keys
 4. All images are rendered using Next.js `next/image` for optimization
 
 ### How It Works
@@ -426,16 +426,14 @@ S3_PUBLIC_URL=https://<region>.your-objectstorage.com
 **Upload Flow:**
 1. Client selects/drops image files
 2. Preview is generated client-side
-3. File is sent to server action
-4. Server extracts dimensions using Sharp
-5. File is uploaded to S3 with metadata headers:
-   - `x-amz-meta-width: 1920`
-   - `x-amz-meta-height: 1080`
+3. Client extracts image dimensions
+4. Server action returns presigned URL
+5. Client uploads directly to S3
 6. Public URL is returned to client
 
 **Display Flow:**
 1. Gallery page fetches list of objects from S3
-2. For each image, dimensions are retrieved via `HeadObjectCommand`
+2. Dimensions are parsed from object keys
 3. Images are rendered using `next/image` with proper width/height
 4. No database queries needed - all metadata lives on S3
 
@@ -444,15 +442,15 @@ S3_PUBLIC_URL=https://<region>.your-objectstorage.com
 - **Max file size**: 10MB
 - **Allowed types**: JPEG, PNG, GIF, WebP
 - **Filename sanitization**: Non-alphanumeric characters replaced with underscores
-- **Server-side validation**: All checks performed before upload
+- **Client-side validation**: Size/type checks enforced before presign
 
 ### Security Considerations
 
-- ✅ File type validation (server-side)
-- ✅ File size limits enforced
+- ✅ File type validation (client)
+- ✅ File size limits enforced (client)
 - ✅ Filename sanitization to prevent path traversal
 - ✅ Credentials never exposed to client
-- ✅ All uploads handled through server actions
+- ✅ Presigned URLs expire quickly
 
 ### Troubleshooting
 
@@ -470,7 +468,7 @@ S3_PUBLIC_URL=https://<region>.your-objectstorage.com
 **Image Display Issues:**
 - Verify `S3_PUBLIC_URL` is accessible from the browser
 - Check Next.js `remotePatterns` configuration in `next.config.js`
-- Ensure images were uploaded with metadata (check S3 console/MinIO browser)
+- Ensure images were uploaded with dimension-aware object keys
 
 ## Deployment
 

@@ -1,14 +1,8 @@
-import {
-  ListObjectsV2Command,
-  PutObjectCommand,
-  type PutObjectCommandInput,
-  S3Client,
-} from "@aws-sdk/client-s3";
-import sharp from "sharp";
+import { ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
+import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 
 import { env } from "@/env";
 
-// Initialize S3 client
 const s3Client = new S3Client({
   endpoint: env.S3_ENDPOINT,
   region: env.S3_REGION,
@@ -16,7 +10,7 @@ const s3Client = new S3Client({
     accessKeyId: env.S3_ACCESS_KEY_ID,
     secretAccessKey: env.S3_SECRET_ACCESS_KEY,
   },
-  forcePathStyle: true, // Required for MinIO and some S3-compatible services
+  forcePathStyle: true,
 });
 
 export interface ImageDimensions {
@@ -30,29 +24,21 @@ export interface UploadResult {
   dimensions: ImageDimensions | null;
 }
 
+export interface PresignedUploadResult {
+  key: string;
+  uploadUrl: string;
+  publicUrl: string;
+  fields: Record<string, string>;
+}
+
+interface PresignedUploadOptions {
+  contentType: string;
+  maxFileSize: number;
+}
+
 const OBJECT_KEY_PREFIX = "uploads";
 const OBJECT_KEY_REGEX = /(?:^|\/)([0-9a-fA-F-]+)_(\d+)x(\d+)\.([a-z0-9]+)$/;
-
-/**
- * Extracts image dimensions from a buffer using sharp
- */
-export async function extractImageDimensions(
-  buffer: Buffer,
-): Promise<ImageDimensions | null> {
-  try {
-    const metadata = await sharp(buffer).metadata();
-    if (metadata.width && metadata.height) {
-      return {
-        width: metadata.width,
-        height: metadata.height,
-      };
-    }
-    return null;
-  } catch {
-    // Not an image or failed to extract metadata
-    return null;
-  }
-}
+const PRESIGNED_TTL_SECONDS = 60;
 
 export function parseDimensionsFromKey(key: string): ImageDimensions | null {
   const match = key.match(OBJECT_KEY_REGEX);
@@ -63,24 +49,25 @@ export function parseDimensionsFromKey(key: string): ImageDimensions | null {
   const width = Number.parseInt(match[2], 10);
   const height = Number.parseInt(match[3], 10);
 
-  if (!Number.isFinite(width) || !Number.isFinite(height)) {
+  if (
+    !Number.isFinite(width) ||
+    !Number.isFinite(height) ||
+    width <= 0 ||
+    height <= 0
+  ) {
     return null;
   }
 
   return { width, height };
 }
 
-function sanitizeExtension(fileName: string): string {
-  const lastDotIndex = fileName.lastIndexOf(".");
-  const ext = lastDotIndex > 0 ? fileName.slice(lastDotIndex + 1) : "";
-  return ext.toLowerCase().replace(/[^a-z0-9]/g, "");
-}
-
-function buildObjectKey(
+export function buildObjectKey(
   fileName: string,
   dimensions: ImageDimensions | null,
 ): string {
-  const extension = sanitizeExtension(fileName) || "bin";
+  const lastDotIndex = fileName.lastIndexOf(".");
+  const ext = lastDotIndex > 0 ? fileName.slice(lastDotIndex + 1) : "";
+  const extension = ext.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
   const id = crypto.randomUUID();
   const width = dimensions?.width ?? 0;
   const height = dimensions?.height ?? 0;
@@ -88,34 +75,31 @@ function buildObjectKey(
   return `${OBJECT_KEY_PREFIX}/${id}_${width}x${height}.${extension}`;
 }
 
-/**
- * Uploads a file to S3 with optional metadata
- */
-export async function uploadToS3(
-  file: Buffer,
-  fileName: string,
-  contentType: string,
-  dimensions: ImageDimensions | null = null,
-): Promise<UploadResult> {
-  const key = buildObjectKey(fileName, dimensions);
+export async function createPresignedUpload(
+  key: string,
+  options: PresignedUploadOptions,
+): Promise<PresignedUploadResult> {
+  const { contentType, maxFileSize } = options;
 
-  const uploadParams: PutObjectCommandInput = {
+  const presignedPost = await createPresignedPost(s3Client, {
     Bucket: env.S3_BUCKET_NAME,
     Key: key,
-    Body: file,
-    ContentType: contentType,
-  };
+    Fields: {
+      "Content-Type": contentType,
+    },
+    Conditions: [
+      ["content-length-range", 0, maxFileSize],
+      ["eq", "$Content-Type", contentType],
+    ],
+    Expires: PRESIGNED_TTL_SECONDS,
+  });
 
-  await s3Client.send(new PutObjectCommand(uploadParams));
-
-  // Construct public URL
   const publicUrl = env.S3_PUBLIC_URL ?? env.S3_ENDPOINT;
-  const url = `${publicUrl}/${env.S3_BUCKET_NAME}/${key}`;
-
   return {
     key,
-    url,
-    dimensions,
+    uploadUrl: presignedPost.url,
+    fields: presignedPost.fields,
+    publicUrl: `${publicUrl}/${env.S3_BUCKET_NAME}/${key}`,
   };
 }
 
