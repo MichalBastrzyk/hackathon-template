@@ -1,5 +1,7 @@
 import { Suspense } from "react";
 
+import Link from "next/link";
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -113,7 +115,15 @@ export default async function Home() {
       <header className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-sm dark:bg-zinc-950/80">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
           <h2 className="font-semibold text-xl">Next.js Template</h2>
-          <UserNav />
+          <div className="flex items-center gap-4">
+            <Link
+              href="/gallery"
+              className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            >
+              Gallery
+            </Link>
+            <UserNav />
+          </div>
         </div>
       </header>
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-12 px-6 py-16">
