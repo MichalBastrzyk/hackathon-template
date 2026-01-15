@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UploadComponent } from "@/components/upload";
-import { getImageDimensions, listObjects } from "@/lib/s3";
+import { listObjects, parseDimensionsFromKey } from "@/lib/s3";
 
 async function GalleryContent() {
   const objects = await listObjects();
@@ -14,16 +14,9 @@ async function GalleryContent() {
     return ["jpg", "jpeg", "png", "gif", "webp"].includes(ext ?? "");
   });
 
-  // Fetch all dimensions in parallel with Promise.all
-  const dimensionsPromises = imageObjects.map((obj) =>
-    getImageDimensions(obj.key),
-  );
-  const dimensions = await Promise.all(dimensionsPromises);
-
-  // Combine objects with their dimensions
-  const imagesWithDimensions = imageObjects.map((obj, index) => ({
+  const imagesWithDimensions = imageObjects.map((obj) => ({
     ...obj,
-    dimensions: dimensions[index],
+    dimensions: parseDimensionsFromKey(obj.key),
   }));
 
   return (
@@ -53,6 +46,11 @@ async function GalleryContent() {
               {imagesWithDimensions.map((obj) => {
                 const { dimensions } = obj;
 
+                const isLocalUrl =
+                  obj.url.startsWith("http://localhost") ||
+                  obj.url.startsWith("http://127.0.0.1") ||
+                  obj.url.startsWith("http://[::1]");
+
                 return (
                   <div
                     key={obj.key}
@@ -66,6 +64,7 @@ async function GalleryContent() {
                           fill
                           className="object-cover"
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          unoptimized={isLocalUrl}
                         />
                       </div>
                     ) : (

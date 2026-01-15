@@ -1,24 +1,14 @@
 # Co zmienić na następnym hackathonie ?
 
 - Gotowy Template z ustawionymi
-    - [ ] drizzle
-    - [ ] better-auth
     - [ ] HOSTING na vercel
-    - [ ] .env.example
-    - [ ] Either trpc or server actions
     - [ ] ai-sdk
-    - [x] biome.js
-    - [x] Next.js
-    - [x] TailwindCSS
-    - [x] Shadcn/ui
 - Zrobić dry-run przed hackathonem (git clone -> install -> dev -> deploy) i spisać kroki
   - [ ] Template
   - [ ] Deploy
 - Wymusić preinstalację narzędzi u zespołu (node wersja, pnpm/npm, editor extensions)
   - [ ] Narzędzia
     - [ ] Vscode
-    - [x] Recommened Extensions
-    - [x] .vscode/settings.json
     - [ ] Copilot
     - [ ] Copilot prompts and selected settings and models for the best results
     - [ ] Biome

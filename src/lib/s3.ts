@@ -1,8 +1,7 @@
 import {
-  type PutObjectCommandInput,
-  PutObjectCommand,
-  HeadObjectCommand,
   ListObjectsV2Command,
+  PutObjectCommand,
+  type PutObjectCommandInput,
   S3Client,
 } from "@aws-sdk/client-s3";
 import sharp from "sharp";
@@ -31,6 +30,9 @@ export interface UploadResult {
   dimensions: ImageDimensions | null;
 }
 
+const OBJECT_KEY_PREFIX = "uploads";
+const OBJECT_KEY_REGEX = /(?:^|\/)([0-9a-fA-F-]+)_(\d+)x(\d+)\.([a-z0-9]+)$/;
+
 /**
  * Extracts image dimensions from a buffer using sharp
  */
@@ -52,6 +54,40 @@ export async function extractImageDimensions(
   }
 }
 
+export function parseDimensionsFromKey(key: string): ImageDimensions | null {
+  const match = key.match(OBJECT_KEY_REGEX);
+  if (!match) {
+    return null;
+  }
+
+  const width = Number.parseInt(match[2], 10);
+  const height = Number.parseInt(match[3], 10);
+
+  if (!Number.isFinite(width) || !Number.isFinite(height)) {
+    return null;
+  }
+
+  return { width, height };
+}
+
+function sanitizeExtension(fileName: string): string {
+  const lastDotIndex = fileName.lastIndexOf(".");
+  const ext = lastDotIndex > 0 ? fileName.slice(lastDotIndex + 1) : "";
+  return ext.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function buildObjectKey(
+  fileName: string,
+  dimensions: ImageDimensions | null,
+): string {
+  const extension = sanitizeExtension(fileName) || "bin";
+  const id = crypto.randomUUID();
+  const width = dimensions?.width ?? 0;
+  const height = dimensions?.height ?? 0;
+
+  return `${OBJECT_KEY_PREFIX}/${id}_${width}x${height}.${extension}`;
+}
+
 /**
  * Uploads a file to S3 with optional metadata
  */
@@ -61,35 +97,13 @@ export async function uploadToS3(
   contentType: string,
   dimensions: ImageDimensions | null = null,
 ): Promise<UploadResult> {
-  // Sanitize filename: only allow alphanumeric, hyphen, and single extension
-  // Split filename and extension
-  const lastDotIndex = fileName.lastIndexOf(".");
-  const name = lastDotIndex > 0 ? fileName.slice(0, lastDotIndex) : fileName;
-  const ext = lastDotIndex > 0 ? fileName.slice(lastDotIndex + 1) : "";
-
-  // Sanitize name part (only alphanumeric and hyphens)
-  const sanitizedName = name.replace(/[^a-zA-Z0-9-]/g, "_");
-  // Sanitize extension (only alphanumeric)
-  const sanitizedExt = ext.replace(/[^a-zA-Z0-9]/g, "");
-
-  // Construct final filename with timestamp prefix
-  const sanitizedFileName = sanitizedExt
-    ? `${sanitizedName}.${sanitizedExt}`
-    : sanitizedName;
-  const key = `${Date.now()}-${sanitizedFileName}`;
-
-  const metadata: Record<string, string> = {};
-  if (dimensions) {
-    metadata.width = dimensions.width.toString();
-    metadata.height = dimensions.height.toString();
-  }
+  const key = buildObjectKey(fileName, dimensions);
 
   const uploadParams: PutObjectCommandInput = {
     Bucket: env.S3_BUCKET_NAME,
     Key: key,
     Body: file,
     ContentType: contentType,
-    Metadata: metadata,
   };
 
   await s3Client.send(new PutObjectCommand(uploadParams));
@@ -103,33 +117,6 @@ export async function uploadToS3(
     url,
     dimensions,
   };
-}
-
-/**
- * Retrieves image dimensions from S3 object metadata
- */
-export async function getImageDimensions(
-  key: string,
-): Promise<ImageDimensions | null> {
-  try {
-    const command = new HeadObjectCommand({
-      Bucket: env.S3_BUCKET_NAME,
-      Key: key,
-    });
-
-    const response = await s3Client.send(command);
-
-    if (response.Metadata?.width && response.Metadata.height) {
-      return {
-        width: Number.parseInt(response.Metadata.width, 10),
-        height: Number.parseInt(response.Metadata.height, 10),
-      };
-    }
-
-    return null;
-  } catch {
-    return null;
-  }
 }
 
 /**
