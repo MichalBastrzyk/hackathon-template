@@ -7,19 +7,14 @@ await jiti.import("./src/env");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Embrace stricter/reactive runtime guarantees and new platform features.
-  // reactStrictMode: true,
   typedRoutes: true,
-  // cacheComponents: true,
-  // reactCompiler: true,
+  cacheComponents: true,
+  reactCompiler: true,
+  compress: true,
   experimental: {
     viewTransition: true,
     inlineCss: true,
-    // serverSourceMaps: true,
-    // turbopackFileSystemCacheForDev: true,
-  },
-  turbopack: {
-    // debugIds: true,
+    turbopackFileSystemCacheForDev: true,
   },
   images: {
     remotePatterns: [

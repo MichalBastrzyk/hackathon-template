@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -14,8 +12,6 @@ import {
 } from "@/components/ui/card";
 
 export default function ForgotPasswordPage() {
-  const [success, setSuccess] = useState(false);
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 p-4 dark:bg-black">
       <Card className="w-full max-w-md">

@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 import { ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 
@@ -121,7 +123,7 @@ export interface S3Object {
 /**
  * Lists all objects in the S3 bucket
  */
-export async function listObjects(): Promise<S3Object[]> {
+export const listObjects = cache(async (): Promise<S3Object[]> => {
   try {
     const command = new ListObjectsV2Command({
       Bucket: env.S3_BUCKET_NAME,
@@ -140,4 +142,4 @@ export async function listObjects(): Promise<S3Object[]> {
   } catch {
     return [];
   }
-}
+});
